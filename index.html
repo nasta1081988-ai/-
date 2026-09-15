@@ -1,0 +1,1586 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#F7F3E8" />
+  <title>Карта готовности к школе — игровая диагностика</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Marck+Script&family=Nunito:wght@600;700;800;900&display=swap" rel="stylesheet">
+
+  <style>
+    :root{
+      /* Палитра, вдохновлённая загруженной картой развития */
+      --cream:#F7F3E8;
+      --paper:#FFFCF6;
+      --green:#246B45;
+      --green-dark:#174D34;
+      --green-soft:#789A77;
+      --coral:#C9685F;
+      --coral-dark:#AF554D;
+      --mustard:#E4C46D;
+      --mustard-soft:#F1D996;
+      --beige:#E9E6D8;
+      --ink:#214E3A;
+      --white:#FFFFFF;
+      --red:#CB5F57;
+      --shadow:0 16px 38px rgba(74,77,54,.13);
+    }
+
+    *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+    html,body{
+      margin:0;
+      min-height:100%;
+      background:var(--cream);
+      color:var(--ink);
+      font-family:'Nunito',system-ui,sans-serif;
+    }
+
+    body{
+      min-height:100dvh;
+      overflow-x:hidden;
+      user-select:none;
+      -webkit-user-select:none;
+      touch-action:none;
+      background:
+        radial-gradient(circle at 92% 16%, rgba(228,196,109,.16) 0 6%, transparent 6.4%),
+        radial-gradient(circle at 7% 75%, rgba(120,154,119,.10) 0 8%, transparent 8.5%),
+        var(--cream);
+    }
+
+    button,input{font:inherit}
+    button{touch-action:manipulation}
+    input{user-select:text;-webkit-user-select:text;touch-action:auto}
+
+    .app{position:relative;min-height:100dvh;isolation:isolate;overflow:hidden}
+
+    /* Полосатый верх, как декоративная «маркиза» на страницах исходного гайда */
+    .awning{
+      position:fixed;
+      z-index:20;
+      top:0;left:0;right:0;
+      height:30px;
+      display:flex;
+      pointer-events:none;
+    }
+    .awning i{
+      flex:1;
+      height:30px;
+      border-radius:0 0 16px 16px;
+    }
+    .awning i:nth-child(odd){background:var(--green)}
+    .awning i:nth-child(even){background:var(--mustard)}
+
+    .bottom-scallops{
+      position:fixed;
+      z-index:1;
+      left:0;right:0;bottom:0;
+      height:44px;
+      pointer-events:none;
+      overflow:hidden;
+      background:var(--green-soft);
+    }
+    .bottom-scallops:before{
+      content:"";
+      position:absolute;
+      left:-18px;right:-18px;top:-22px;height:44px;
+      background:
+        radial-gradient(circle at 22px 22px,var(--mustard) 0 21px,transparent 22px)
+        0 0/44px 44px repeat-x;
+    }
+
+    .screen{
+      min-height:100dvh;
+      padding:calc(54px + env(safe-area-inset-top)) 16px calc(64px + env(safe-area-inset-bottom));
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      opacity:1;
+      transition:opacity .4s ease, transform .4s ease;
+    }
+    .screen.hidden{display:none;opacity:0;transform:translateY(10px)}
+
+    .shell{width:min(100%,920px);position:relative;z-index:3}
+
+    .paper{
+      position:relative;
+      background:rgba(255,252,246,.96);
+      border-radius:34px;
+      box-shadow:var(--shadow);
+      padding:24px;
+      border:1px solid rgba(36,107,69,.08);
+      overflow:hidden;
+    }
+
+    .organic{
+      position:absolute;
+      border-radius:44% 56% 65% 35% / 48% 37% 63% 52%;
+      pointer-events:none;
+      z-index:0;
+    }
+    .organic.one{
+      width:230px;height:170px;
+      background:rgba(233,230,216,.76);
+      right:-60px;top:70px;
+      transform:rotate(8deg);
+    }
+    .organic.two{
+      width:180px;height:120px;
+      background:rgba(228,196,109,.17);
+      left:-54px;bottom:34px;
+      transform:rotate(-8deg);
+    }
+
+    .doodle{
+      position:absolute;
+      width:64px;height:64px;
+      opacity:.72;
+      pointer-events:none;
+    }
+    .doodle.rings{right:24px;top:24px}
+    .doodle.wiggle{left:20px;bottom:22px}
+
+    .content{position:relative;z-index:2}
+
+    .brand{
+      text-align:center;
+      color:var(--green);
+      font-weight:900;
+      font-size:clamp(1.05rem,4vw,1.5rem);
+      letter-spacing:.03em;
+      margin-bottom:8px;
+    }
+
+    .eyebrow{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding:8px 13px;
+      border-radius:999px;
+      color:var(--coral);
+      background:rgba(201,104,95,.09);
+      font-weight:900;
+      font-size:.78rem;
+      letter-spacing:.06em;
+      text-transform:uppercase;
+    }
+
+    h1,h2,h3,p{margin-top:0}
+
+    h1{
+      font-size:clamp(2rem,9.7vw,4.3rem);
+      line-height:.98;
+      text-align:center;
+      margin:18px auto 8px;
+      max-width:760px;
+      color:var(--coral);
+      font-weight:900;
+      letter-spacing:.025em;
+    }
+
+    .script{
+      font-family:'Marck Script',cursive;
+      color:var(--green-soft);
+      font-size:clamp(2rem,8vw,3.2rem);
+      line-height:1;
+      text-align:center;
+      margin:0 0 18px;
+    }
+
+    h2{
+      font-size:clamp(1.55rem,6vw,2.55rem);
+      line-height:1.08;
+      color:var(--coral);
+      margin-bottom:10px;
+      font-weight:900;
+    }
+
+    h3{
+      font-size:1.13rem;
+      color:var(--green);
+      margin-bottom:8px;
+      font-weight:900;
+    }
+
+    .lead{
+      max-width:720px;
+      margin:0 auto 18px;
+      text-align:center;
+      color:var(--green);
+      line-height:1.55;
+      font-size:1.02rem;
+      font-weight:700;
+    }
+
+    .muted{color:#68806E}
+    .tiny{font-size:.81rem;line-height:1.45;color:#718477}
+
+    .intro-note{
+      background:var(--beige);
+      border-radius:40% 60% 56% 44% / 46% 44% 56% 54%;
+      padding:22px 20px;
+      max-width:690px;
+      margin:18px auto;
+      text-align:center;
+      color:var(--green);
+      font-weight:700;
+      line-height:1.5;
+    }
+    .intro-note strong{color:var(--green-dark);font-weight:900}
+
+    .field{display:grid;gap:8px;margin:20px 0 16px}
+    label{font-weight:900;color:var(--green)}
+    input{
+      width:100%;
+      padding:15px 16px;
+      border-radius:17px;
+      border:2px solid rgba(36,107,69,.16);
+      background:#FFFDF8;
+      color:var(--green-dark);
+      outline:none;
+      font-weight:800;
+    }
+    input:focus{
+      border-color:var(--green);
+      box-shadow:0 0 0 4px rgba(36,107,69,.08);
+    }
+
+    .route-title{
+      text-align:center;
+      color:var(--green);
+      font-weight:900;
+      margin:8px 0 12px;
+    }
+
+    .route{
+      display:grid;
+      gap:11px;
+      position:relative;
+      margin:14px 0 18px;
+    }
+
+    .level-btn{
+      position:relative;
+      border:0;
+      border-radius:26px;
+      background:var(--green);
+      color:#fff;
+      padding:14px 14px 14px 68px;
+      min-height:70px;
+      text-align:left;
+      font-weight:900;
+      box-shadow:0 8px 18px rgba(36,107,69,.13);
+      cursor:pointer;
+      transition:transform .12s ease,filter .2s ease;
+    }
+    .level-btn:active{transform:scale(.975)}
+    .level-btn .num{
+      position:absolute;
+      left:12px;top:50%;
+      transform:translateY(-50%);
+      width:46px;height:46px;
+      display:grid;place-items:center;
+      border-radius:14px;
+      background:var(--mustard);
+      color:var(--coral-dark);
+      font-size:1.35rem;
+      font-weight:900;
+    }
+    .level-btn small{display:block;color:#DCEBDD;font-weight:700;margin-top:2px}
+    .level-btn:nth-child(2){background:#2C744F}
+    .level-btn:nth-child(3){background:#1B5C3B}
+
+    .road{
+      width:100%;
+      max-width:410px;
+      height:74px;
+      margin:2px auto -4px;
+      position:relative;
+    }
+    .road svg{width:100%;height:100%;display:block}
+
+    .btn{
+      border:0;
+      border-radius:18px;
+      min-height:54px;
+      padding:14px 18px;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      gap:8px;
+      font-weight:900;
+      cursor:pointer;
+      transition:transform .12s ease,filter .2s ease,opacity .2s ease;
+    }
+    .btn:active{transform:scale(.97)}
+    .btn.full{width:100%}
+    .btn.primary{background:var(--coral);color:#fff;box-shadow:0 8px 18px rgba(201,104,95,.18)}
+    .btn.secondary{background:var(--green);color:#fff}
+    .btn.soft{background:var(--mustard-soft);color:var(--green-dark)}
+    .btn.ghost{
+      background:#FFFDF8;
+      color:var(--green);
+      border:2px solid rgba(36,107,69,.16);
+    }
+    .btn[disabled]{opacity:.42;cursor:not-allowed}
+
+    .topbar{
+      display:grid;
+      grid-template-columns:auto 1fr auto;
+      align-items:center;
+      gap:10px;
+      margin-bottom:14px;
+    }
+    .home{
+      min-height:42px;
+      padding:8px 11px;
+      border-radius:14px;
+    }
+
+    .progress{
+      display:flex;
+      gap:7px;
+      justify-content:center;
+    }
+    .dot{
+      width:100%;
+      max-width:48px;
+      height:8px;
+      border-radius:999px;
+      background:#D9DFD5;
+    }
+    .dot.done{background:var(--green)}
+    .dot.active{background:var(--mustard);box-shadow:0 0 0 4px rgba(228,196,109,.18)}
+    .counter{font-size:.8rem;color:var(--green-soft);font-weight:900;white-space:nowrap}
+
+    .task-card{
+      position:relative;
+      min-height:560px;
+      display:flex;
+      flex-direction:column;
+      background:var(--paper);
+    }
+
+    .task-card:before{
+      content:"";
+      position:absolute;
+      right:-52px;top:58px;
+      width:190px;height:140px;
+      background:rgba(233,230,216,.78);
+      border-radius:42% 58% 63% 37% / 49% 38% 62% 51%;
+      transform:rotate(10deg);
+      z-index:0;
+    }
+    .task-card>*{position:relative;z-index:2}
+
+    .level-label{
+      display:inline-flex;
+      align-items:center;
+      gap:9px;
+      width:max-content;
+      max-width:100%;
+      color:var(--coral);
+      font-weight:900;
+      text-transform:uppercase;
+      letter-spacing:.035em;
+      font-size:.76rem;
+      margin-bottom:10px;
+    }
+    .level-number{
+      width:34px;height:34px;
+      display:grid;place-items:center;
+      border-radius:12px;
+      color:var(--coral-dark);
+      background:var(--mustard);
+      font-size:1rem;
+      flex:none;
+    }
+
+    .task-heading{
+      display:grid;
+      grid-template-columns:74px 1fr;
+      gap:14px;
+      align-items:center;
+      margin-bottom:6px;
+    }
+
+    .task-icon{
+      width:74px;height:74px;
+      border-radius:26px;
+      display:grid;place-items:center;
+      background:#EDF0E6;
+      font-size:2.35rem;
+      box-shadow:inset 0 0 0 1px rgba(36,107,69,.05);
+    }
+
+    .task-text{
+      font-size:1.04rem;
+      color:var(--green);
+      line-height:1.5;
+      font-weight:700;
+      margin-bottom:10px;
+    }
+
+    .number-deco{
+      position:absolute;
+      right:18px;
+      bottom:124px;
+      color:transparent;
+      -webkit-text-stroke:4px rgba(36,107,69,.23);
+      font-size:8rem;
+      line-height:1;
+      font-weight:900;
+      pointer-events:none;
+      z-index:0!important;
+    }
+
+    .station-line{
+      height:20px;
+      margin:2px 0 8px;
+      position:relative;
+      overflow:hidden;
+    }
+    .station-line:before{
+      content:"";
+      position:absolute;
+      left:0;right:0;top:9px;
+      border-top:4px dotted var(--mustard);
+    }
+
+    .options{
+      display:grid;
+      grid-template-columns:1fr;
+      gap:10px;
+      margin:14px 0 12px;
+    }
+
+    .option{
+      position:relative;
+      border:2px solid rgba(36,107,69,.10);
+      background:#FFFDF8;
+      color:var(--green);
+      min-height:58px;
+      border-radius:18px;
+      padding:14px 15px;
+      text-align:left;
+      font-weight:900;
+      cursor:pointer;
+      transition:.2s ease;
+      box-shadow:0 5px 12px rgba(74,77,54,.05);
+    }
+    .option:active{transform:scale(.985)}
+    .option.selected{
+      border-color:var(--mustard);
+      background:#FFF7D9;
+    }
+    .option.correct{
+      border-color:var(--green);
+      background:#EAF3E7;
+      animation:pop .34s ease;
+    }
+    .option.wrong{
+      border-color:var(--coral);
+      background:#FBE6E2;
+      animation:shake .32s ease;
+    }
+
+    .feedback{
+      min-height:54px;
+      padding:12px 14px;
+      border-radius:18px;
+      background:#EFF0E7;
+      color:var(--green);
+      border:1px solid rgba(36,107,69,.08);
+      line-height:1.42;
+      font-weight:700;
+      margin-top:6px;
+    }
+    .feedback.good{background:#EAF3E7;border-color:#A8C5A8}
+    .feedback.bad{background:#FBE6E2;border-color:#E8B4AE;color:#9C514B}
+
+    .task-actions{
+      display:grid;
+      gap:9px;
+      margin-top:auto;
+      padding-top:16px;
+    }
+
+    .tiles{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      justify-content:center;
+      margin:18px 0;
+    }
+
+    .hanging{
+      position:relative;
+      min-width:62px;
+      min-height:66px;
+      display:grid;
+      place-items:center;
+      padding:12px;
+      border-radius:17px;
+      border:2px solid rgba(36,107,69,.09);
+      background:#FFFDF8;
+      color:var(--green);
+      font-size:1.25rem;
+      font-weight:900;
+      cursor:pointer;
+      box-shadow:0 6px 12px rgba(74,77,54,.06);
+      transition:transform .12s ease;
+    }
+    .hanging:before{
+      content:"";
+      position:absolute;
+      left:50%;top:-18px;
+      width:2px;height:18px;
+      background:var(--mustard);
+    }
+    .hanging:after{
+      content:"";
+      position:absolute;
+      left:50%;top:-4px;
+      width:7px;height:7px;
+      border-radius:50%;
+      background:var(--coral);
+      transform:translate(-50%,-50%);
+    }
+    .hanging:active{transform:translateY(3px) scale(.98)}
+
+    .selected-order{
+      min-height:44px;
+      display:flex;
+      flex-wrap:wrap;
+      justify-content:center;
+      gap:7px;
+      margin:4px 0 8px;
+    }
+    .order-chip{
+      padding:8px 11px;
+      border-radius:999px;
+      color:var(--green-dark);
+      background:var(--mustard-soft);
+      font-size:.9rem;
+      font-weight:900;
+    }
+
+    @keyframes pop{50%{transform:scale(1.025)}}
+    @keyframes shake{
+      25%{transform:translateX(-5px)}
+      50%{transform:translateX(5px)}
+      75%{transform:translateX(-3px)}
+    }
+
+    /* Результат */
+    .result-hero{
+      text-align:center;
+      margin-bottom:18px;
+    }
+    .result-hero h1{font-size:clamp(2rem,8vw,3.6rem)}
+    .stars{
+      color:var(--mustard);
+      font-size:2rem;
+      letter-spacing:.11em;
+      margin:4px 0 14px;
+    }
+
+    .result-grid{
+      display:grid;
+      gap:12px;
+      margin:16px 0;
+    }
+    .result-row{
+      padding:14px;
+      border-radius:20px;
+      background:#F3F0E6;
+      border:1px solid rgba(36,107,69,.06);
+    }
+    .result-row-top{
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap:12px;
+    }
+    .result-row strong{color:var(--green);font-weight:900}
+    .status{font-size:.85rem;font-weight:900;white-space:nowrap}
+    .bar{
+      height:9px;
+      overflow:hidden;
+      border-radius:999px;
+      background:#D9DED3;
+      margin-top:9px;
+    }
+    .bar i{
+      display:block;
+      height:100%;
+      border-radius:inherit;
+      background:linear-gradient(90deg,var(--green-soft),var(--green));
+    }
+
+    .legend{
+      display:grid;
+      grid-template-columns:1fr;
+      gap:8px;
+      margin:16px 0;
+    }
+    .legend>div{
+      padding:10px 12px;
+      border-radius:16px;
+      background:#FFFDF8;
+      border:1px solid rgba(36,107,69,.08);
+      font-size:.84rem;
+      color:#657B6A;
+    }
+
+    .video-box{
+      position:relative;
+      aspect-ratio:16/9;
+      display:grid;
+      place-items:center;
+      overflow:hidden;
+      border-radius:24px;
+      border:2px dashed rgba(36,107,69,.22);
+      background:#EDE9DD;
+      text-align:center;
+      padding:18px;
+      margin:18px 0;
+    }
+    .video-box video{
+      position:absolute;
+      inset:0;
+      width:100%;height:100%;
+      object-fit:cover;
+      opacity:.14;
+    }
+    .video-label{
+      position:relative;
+      z-index:2;
+      color:var(--green);
+      font-weight:900;
+    }
+
+    .confetti{
+      position:fixed;
+      inset:0;
+      pointer-events:none;
+      overflow:hidden;
+      z-index:60;
+    }
+    .confetti i{
+      position:absolute;
+      top:-20px;
+      width:10px;height:15px;
+      background:var(--mustard);
+      animation:fall 1.7s linear forwards;
+    }
+    @keyframes fall{
+      to{transform:translateY(110vh) rotate(720deg);opacity:.12}
+    }
+
+    @media (min-width:720px){
+      .screen{padding:72px 28px 74px}
+      .paper{padding:34px}
+      .route{grid-template-columns:repeat(3,1fr)}
+      .level-btn{
+        min-height:132px;
+        padding:62px 16px 16px;
+        text-align:center;
+      }
+      .level-btn .num{
+        top:12px;left:50%;
+        transform:translateX(-50%);
+      }
+      .options.two{grid-template-columns:1fr 1fr}
+      .legend{grid-template-columns:repeat(3,1fr)}
+      .task-actions{grid-template-columns:1fr 1fr 1.2fr}
+      .task-card{min-height:580px}
+    }
+  </style>
+</head>
+<body>
+<div class="app">
+
+  <div class="awning" aria-hidden="true">
+    <i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i>
+  </div>
+  <div class="bottom-scallops" aria-hidden="true"></div>
+
+  <!-- WELCOME -->
+  <section id="welcome" class="screen">
+    <div class="shell">
+      <div class="paper">
+        <div class="organic one"></div>
+        <div class="organic two"></div>
+
+        <svg class="doodle rings" viewBox="0 0 64 64" aria-hidden="true">
+          <circle cx="25" cy="31" r="13" fill="none" stroke="#789A77" stroke-width="3"/>
+          <circle cx="39" cy="27" r="13" fill="none" stroke="#E4C46D" stroke-width="3"/>
+        </svg>
+
+        <svg class="doodle wiggle" viewBox="0 0 64 64" aria-hidden="true">
+          <path d="M4 31 C12 19 18 43 27 31 S42 19 49 31 S56 43 61 31" fill="none" stroke="#E4C46D" stroke-width="3" stroke-linecap="round"/>
+        </svg>
+
+        <div class="content">
+          <div class="brand">ШКОЛЬНЫЙ КВЕСТ</div>
+          <h1>КАРТА ГОТОВНОСТИ РЕБЁНКА</h1>
+          <div class="script">к школе</div>
+
+          <div class="intro-note">
+            Ребёнка можно научить читать, считать и писать, но для уверенного старта важно ещё уметь
+            <strong>слушать, концентрироваться, общаться, справляться с трудностями и действовать самостоятельно.</strong>
+          </div>
+
+          <div class="field">
+            <label for="nameInput">Как зовут ребёнка?</label>
+            <input id="nameInput" maxlength="20" autocomplete="off" placeholder="Например, Миша" />
+          </div>
+
+          <div class="road" aria-hidden="true">
+            <svg viewBox="0 0 410 74">
+              <path d="M14 56 C92 16 128 80 200 41 C258 10 301 67 396 20" fill="none" stroke="#C9685F" stroke-width="28" stroke-linecap="round"/>
+              <path d="M18 54 C94 18 130 76 201 40 C260 11 304 63 393 22" fill="none" stroke="#F7F3E8" stroke-width="4" stroke-linecap="round" stroke-dasharray="12 12"/>
+            </svg>
+          </div>
+
+          <div class="route-title">Выберите маршрут</div>
+          <div class="route">
+            <button class="level-btn" data-start-level="0">
+              <span class="num">1</span>
+              Я могу!
+              <small>Базовые навыки</small>
+            </button>
+            <button class="level-btn" data-start-level="1">
+              <span class="num">2</span>
+              Я справлюсь
+              <small>Составные задания</small>
+            </button>
+            <button class="level-btn" data-start-level="2">
+              <span class="num">3</span>
+              Почти школьник
+              <small>Самостоятельный выбор</small>
+            </button>
+          </div>
+
+          <button id="startAll" class="btn primary full">Пройти все уровни по порядку →</button>
+          <p class="tiny" style="text-align:center;margin:12px auto 0;max-width:650px">
+            Игра не ставит диагноз и не делит детей на «готов / не готов». Она помогает увидеть сильные стороны и зоны поддержки.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- GAME -->
+  <section id="game" class="screen hidden">
+    <div class="shell">
+      <div class="topbar">
+        <button id="homeBtn" class="btn ghost home">←</button>
+        <div id="progress" class="progress"></div>
+        <div id="counter" class="counter">1 / 5</div>
+      </div>
+
+      <div class="paper task-card">
+        <div class="level-label">
+          <span id="levelNumber" class="level-number">1</span>
+          <span id="levelBadge">Уровень 1 · Я могу!</span>
+        </div>
+
+        <div class="task-heading">
+          <div id="taskIcon" class="task-icon">👂</div>
+          <div>
+            <h2 id="taskTitle">Слушаю внимательно</h2>
+            <div class="station-line"></div>
+          </div>
+        </div>
+
+        <p id="taskText" class="task-text"></p>
+        <div id="specialArea"></div>
+        <div id="options" class="options two"></div>
+        <div id="feedback" class="feedback">Выбери ответ — и двигайся дальше по маршруту.</div>
+
+        <div id="numberDeco" class="number-deco">1</div>
+
+        <div class="task-actions">
+          <button id="speakBtn" class="btn secondary">🔊 Озвучить</button>
+          <button id="hintBtn" class="btn soft">💡 Подсказка</button>
+          <button id="nextBtn" class="btn primary" disabled>Дальше →</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- RESULTS -->
+  <section id="results" class="screen hidden">
+    <div class="shell">
+      <div class="paper">
+        <div class="organic one"></div>
+        <div class="organic two"></div>
+
+        <div class="content">
+          <div class="brand">КАРТА РАЗВИТИЯ</div>
+
+          <div class="result-hero">
+            <h1 id="resultTitle">ОТЛИЧНАЯ РАБОТА!</h1>
+            <div id="stars" class="stars">⭐⭐⭐</div>
+            <p id="resultLead" class="lead"></p>
+          </div>
+
+          <h3>Что уже получается и что стоит поддержать</h3>
+          <div id="resultGrid" class="result-grid"></div>
+
+          <div class="legend">
+            <div>🟢 <b>Уверенно</b><br>получается самостоятельно</div>
+            <div>🟡 <b>Развивается</b><br>нужна небольшая поддержка</div>
+            <div>🔵 <b>Пока учимся</b><br>можно тренировать в игре и повседневных делах</div>
+          </div>
+
+          <div class="video-box">
+            <video controls aria-label="Видео-поздравление"></video>
+            <div class="video-label">
+              🎬 Место для видео-поздравления
+              <div class="tiny">Добавьте mp4-файл в тег &lt;video&gt; при публикации.</div>
+            </div>
+          </div>
+
+          <button id="againBtn" class="btn primary full">Пройти ещё раз ↻</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div id="confetti" class="confetti"></div>
+</div>
+
+<script>
+(() => {
+  'use strict';
+
+  const spheres = {
+    attention: 'Внимание и самостоятельность',
+    social: 'Социально-эмоциональные навыки',
+    physical: 'Физическая готовность',
+    character: 'Характер и отношение к трудностям',
+    literacy: 'Речь и грамотность'
+  };
+
+  const levels = [
+    {
+      name:'Уровень 1 · Я могу!',
+      tasks:[
+        {
+          sphere:'attention', icon:'👂', title:'Слушаю внимательно', type:'sequence',
+          text:'Нажми по порядку: круг → звезда → квадрат.',
+          items:['●','★','■'], target:['●','★','■'],
+          hint:'Сначала круг, потом звезда, потом квадрат.'
+        },
+        {
+          sphere:'social', icon:'💛', title:'Что я чувствую?', type:'choice',
+          text:'Твою башню случайно задели, и она упала. Что лучше сказать?',
+          options:[
+            '«Мне обидно. Давай построим снова вместе».',
+            '«Я больше ни с кем не играю!»',
+            'Толкнуть в ответ.'
+          ],
+          correct:0,
+          hint:'Попробуй назвать чувство словами и найти спокойное решение.'
+        },
+        {
+          sphere:'physical', icon:'✋', title:'Точная рука', type:'multi',
+          text:'Выбери действия, которые помогают руке готовиться к письму.',
+          options:[
+            'Лепить из пластилина',
+            'Рисовать и обводить линии',
+            'Только смотреть мультики',
+            'Собирать конструктор'
+          ],
+          correct:[0,1,3],
+          hint:'Подумай, где работают пальцы, кисть и глаза вместе.'
+        },
+        {
+          sphere:'character', icon:'🌱', title:'Попробую ещё', type:'choice',
+          text:'Пазл не получается с первого раза. Что поможет?',
+          options:[
+            'Попробовать другой способ',
+            'Сразу бросить',
+            'Сказать: «Я никогда не научусь»'
+          ],
+          correct:0,
+          hint:'Ошибка — это подсказка, а не конец игры.'
+        },
+        {
+          sphere:'literacy', icon:'📖', title:'Понимаю историю', type:'choice',
+          text:'Лена взяла зонт, потому что на улице шёл дождь. Почему Лена взяла зонт?',
+          options:[
+            'Потому что шёл дождь',
+            'Потому что было жарко',
+            'Потому что потеряла шапку'
+          ],
+          correct:0,
+          hint:'Найди причину прямо в истории.'
+        }
+      ]
+    },
+
+    {
+      name:'Уровень 2 · Я справлюсь',
+      tasks:[
+        {
+          sphere:'attention', icon:'🧩', title:'Запомни порядок', type:'memory',
+          text:'Посмотри на ряд. Через 3 секунды он исчезнет. Повтори порядок.',
+          target:['🍎','🚗','🌙','🐟'],
+          pool:['🌙','🐟','🍎','🚗'],
+          hint:'Вспомни, что было первым и последним.'
+        },
+        {
+          sphere:'social', icon:'🤝', title:'Договоримся', type:'choice',
+          text:'Друг тоже хочет играть той же игрушкой. Что можно предложить?',
+          options:[
+            'Играть по очереди',
+            'Спрятать игрушку',
+            'Крикнуть: «Только моя!»'
+          ],
+          correct:0,
+          hint:'Хорошее решение учитывает и тебя, и другого ребёнка.'
+        },
+        {
+          sphere:'physical', icon:'🏃', title:'Готов к движению', type:'multi',
+          text:'Что помогает телу быть готовым к школьной нагрузке?',
+          options:[
+            'Регулярно двигаться',
+            'Тренировать равновесие',
+            'Долго сидеть без перерыва',
+            'Играть с мячом'
+          ],
+          correct:[0,1,3],
+          hint:'Выбирай то, где тело двигается, держит баланс и координирует движения.'
+        },
+        {
+          sphere:'character', icon:'🔍', title:'Ищу решение', type:'choice',
+          text:'Для постройки не хватает длинной детали. Что делать?',
+          options:[
+            'Подумать, чем заменить, или попросить подходящую деталь',
+            'Рассердиться и уйти',
+            'Разрушить чужую постройку'
+          ],
+          correct:0,
+          hint:'Можно изменить план, спросить или попробовать другой способ.'
+        },
+        {
+          sphere:'literacy', icon:'🗂️', title:'Что было сначала?', type:'order',
+          text:'Расставь события истории по порядку.',
+          items:[
+            'Петя надел сапоги',
+            'Петя увидел лужу',
+            'Петя прыгнул в лужу'
+          ],
+          target:[
+            'Петя увидел лужу',
+            'Петя надел сапоги',
+            'Петя прыгнул в лужу'
+          ],
+          hint:'Сначала герой замечает ситуацию, потом готовится, потом действует.'
+        }
+      ]
+    },
+
+    {
+      name:'Уровень 3 · Почти школьник',
+      tasks:[
+        {
+          sphere:'attention', icon:'🎒', title:'Собери рюкзак', type:'multi',
+          text:'Выбери только то, что пригодится на обычном школьном занятии.',
+          options:['Карандаш','Тетрадь','Подушка','Пенал'],
+          correct:[0,1,3],
+          hint:'Что помогает работать за столом и выполнять задания?'
+        },
+        {
+          sphere:'social', icon:'🙋', title:'Попросить о помощи', type:'choice',
+          text:'Ты не понял задание учителя. Как лучше поступить?',
+          options:[
+            'Спокойно сказать: «Повторите, пожалуйста, задание»',
+            'Сделать вид, что всё понял',
+            'Начать мешать другим'
+          ],
+          correct:0,
+          hint:'Просить объяснить непонятное — нормальный школьный навык.'
+        },
+        {
+          sphere:'physical', icon:'✏️', title:'Контроль движения', type:'choice',
+          text:'Что важнее перед письмом?',
+          options:[
+            'Удобная посадка, контроль руки и движения',
+            'Писать как можно быстрее',
+            'Сильно давить на карандаш'
+          ],
+          correct:0,
+          hint:'Главное — удобство, контроль и координация, а не скорость.'
+        },
+        {
+          sphere:'character', icon:'🛠️', title:'Проверяю себя', type:'choice',
+          text:'Ты закончил работу и заметил ошибку. Что сделать?',
+          options:[
+            'Исправить её и проверить ещё раз',
+            'Спрятать работу',
+            'Сказать, что виноват кто-то другой'
+          ],
+          correct:0,
+          hint:'Самопроверка — часть самостоятельности.'
+        },
+        {
+          sphere:'literacy', icon:'💬', title:'Объясняю своими словами', type:'choice',
+          text:'Учитель прочитал короткий рассказ. Что показывает хорошее понимание?',
+          options:[
+            'Рассказать смысл своими словами',
+            'Повторить только первое слово',
+            'Назвать случайную букву'
+          ],
+          correct:0,
+          hint:'Важно не просто услышать слова, а понять и передать смысл.'
+        }
+      ]
+    }
+  ];
+
+  const $ = id => document.getElementById(id);
+
+  const els = {
+    welcome:$('welcome'),
+    game:$('game'),
+    results:$('results'),
+    nameInput:$('nameInput'),
+    startAll:$('startAll'),
+    progress:$('progress'),
+    counter:$('counter'),
+    levelBadge:$('levelBadge'),
+    levelNumber:$('levelNumber'),
+    taskIcon:$('taskIcon'),
+    taskTitle:$('taskTitle'),
+    taskText:$('taskText'),
+    options:$('options'),
+    specialArea:$('specialArea'),
+    feedback:$('feedback'),
+    nextBtn:$('nextBtn'),
+    hintBtn:$('hintBtn'),
+    speakBtn:$('speakBtn'),
+    homeBtn:$('homeBtn'),
+    numberDeco:$('numberDeco'),
+    resultTitle:$('resultTitle'),
+    resultLead:$('resultLead'),
+    resultGrid:$('resultGrid'),
+    stars:$('stars'),
+    againBtn:$('againBtn'),
+    confetti:$('confetti')
+  };
+
+  const state = {
+    name:'',
+    levelIndex:0,
+    taskIndex:0,
+    allMode:true,
+    selectedStart:0,
+    attempts:0,
+    hintUsed:false,
+    solved:false,
+    scores:{attention:0,social:0,physical:0,character:0,literacy:0},
+    maxScores:{attention:0,social:0,physical:0,character:0,literacy:0},
+    order:[],
+    multi:[]
+  };
+
+  let audioCtx = null;
+
+  function show(screen){
+    [els.welcome,els.game,els.results].forEach(s => s.classList.add('hidden'));
+    requestAnimationFrame(() => screen.classList.remove('hidden'));
+  }
+
+  function start(levelIndex,allMode){
+    state.name = els.nameInput.value.trim() || 'Юный исследователь';
+    localStorage.setItem('schoolQuestName',state.name);
+
+    state.levelIndex = levelIndex;
+    state.selectedStart = levelIndex;
+    state.taskIndex = 0;
+    state.allMode = allMode;
+
+    state.scores = {attention:0,social:0,physical:0,character:0,literacy:0};
+    state.maxScores = {attention:0,social:0,physical:0,character:0,literacy:0};
+
+    calculateMax();
+    unlockAudio();
+    show(els.game);
+    renderTask();
+  }
+
+  function calculateMax(){
+    const relevant = state.allMode ? levels.slice(state.selectedStart) : [levels[state.selectedStart]];
+    relevant.forEach(level => {
+      level.tasks.forEach(task => state.maxScores[task.sphere] += 2);
+    });
+  }
+
+  function resetTaskState(){
+    state.attempts = 0;
+    state.hintUsed = false;
+    state.solved = false;
+    state.order = [];
+    state.multi = [];
+
+    els.nextBtn.disabled = true;
+    els.feedback.className = 'feedback';
+    els.feedback.textContent = 'Выбери ответ — и двигайся дальше по маршруту.';
+    els.specialArea.innerHTML = '';
+    els.options.innerHTML = '';
+  }
+
+  function renderProgress(){
+    const count = levels[state.levelIndex].tasks.length;
+    els.progress.innerHTML = '';
+
+    for(let i=0;i<count;i++){
+      const dot = document.createElement('i');
+      dot.className = 'dot ' + (i < state.taskIndex ? 'done' : i === state.taskIndex ? 'active' : '');
+      els.progress.appendChild(dot);
+    }
+
+    els.counter.textContent = `${state.taskIndex + 1} / ${count}`;
+  }
+
+  function renderTask(){
+    resetTaskState();
+
+    const level = levels[state.levelIndex];
+    const task = level.tasks[state.taskIndex];
+
+    els.levelBadge.textContent = level.name;
+    els.levelNumber.textContent = state.levelIndex + 1;
+    els.numberDeco.textContent = state.taskIndex + 1;
+    els.taskIcon.textContent = task.icon;
+    els.taskTitle.textContent = task.title;
+    els.taskText.textContent = task.text;
+
+    renderProgress();
+
+    if(task.type === 'choice') renderChoice(task);
+    if(task.type === 'multi') renderMulti(task);
+    if(task.type === 'sequence') renderSequence(task);
+    if(task.type === 'order') renderOrder(task);
+    if(task.type === 'memory') renderMemory(task);
+  }
+
+  function makeButton(text,className='option'){
+    const button = document.createElement('button');
+    button.className = className;
+    button.textContent = text;
+    return button;
+  }
+
+  function renderChoice(task){
+    task.options.forEach((option,index)=>{
+      const button = makeButton(option);
+
+      button.addEventListener('click',()=>{
+        if(state.solved) return;
+
+        state.attempts++;
+
+        if(index === task.correct){
+          button.classList.add('correct');
+          solve(task,state.attempts === 1 && !state.hintUsed ? 2 : 1);
+        }else{
+          button.classList.add('wrong');
+          sfx('error');
+          feedback('Пока не то. Можно попробовать ещё раз.',false);
+          setTimeout(()=>button.classList.remove('wrong'),450);
+        }
+      });
+
+      els.options.appendChild(button);
+    });
+  }
+
+  function renderMulti(task){
+    task.options.forEach((option,index)=>{
+      const button = makeButton(option);
+
+      button.addEventListener('click',()=>{
+        if(state.solved) return;
+
+        button.classList.toggle('selected');
+
+        if(state.multi.includes(index)){
+          state.multi = state.multi.filter(x=>x !== index);
+        }else{
+          state.multi.push(index);
+        }
+      });
+
+      els.options.appendChild(button);
+    });
+
+    const check = makeButton('Проверить выбор','btn secondary full');
+
+    check.addEventListener('click',()=>{
+      if(state.solved) return;
+
+      state.attempts++;
+
+      const answer = [...state.multi].sort((a,b)=>a-b).join(',');
+      const correct = [...task.correct].sort((a,b)=>a-b).join(',');
+
+      if(answer === correct){
+        solve(task,state.attempts === 1 && !state.hintUsed ? 2 : 1);
+      }else{
+        sfx('error');
+        feedback('Есть лишний или пропущенный вариант. Попробуй ещё.',false);
+      }
+    });
+
+    els.specialArea.appendChild(check);
+  }
+
+  function renderSequence(task){
+    const shuffled = [...task.items].sort(()=>Math.random()-.5);
+    const chosen = document.createElement('div');
+    chosen.className = 'selected-order';
+    els.specialArea.appendChild(chosen);
+
+    shuffled.forEach(item=>{
+      const button = makeButton(item,'hanging');
+
+      button.addEventListener('click',()=>{
+        if(state.solved) return;
+
+        state.order.push(item);
+
+        const chip = document.createElement('span');
+        chip.className = 'order-chip';
+        chip.textContent = item;
+        chosen.appendChild(chip);
+
+        if(state.order.length === task.target.length){
+          state.attempts++;
+
+          if(state.order.join('|') === task.target.join('|')){
+            solve(task,state.attempts === 1 && !state.hintUsed ? 2 : 1);
+          }else{
+            sfx('error');
+            feedback('Порядок немного сбился. Попробуй ещё раз.',false);
+            state.order = [];
+            chosen.innerHTML = '';
+          }
+        }
+      });
+
+      els.options.appendChild(button);
+    });
+  }
+
+  function renderOrder(task){
+    const shuffled = [...task.items].sort(()=>Math.random()-.5);
+    const chosen = document.createElement('div');
+    chosen.className = 'selected-order';
+    els.specialArea.appendChild(chosen);
+
+    shuffled.forEach(item=>{
+      const button = makeButton(item,'hanging');
+      button.style.fontSize = '1rem';
+
+      button.addEventListener('click',()=>{
+        if(state.solved || button.disabled) return;
+
+        button.disabled = true;
+        state.order.push(item);
+
+        const chip = document.createElement('span');
+        chip.className = 'order-chip';
+        chip.textContent = `${state.order.length}. ${item}`;
+        chosen.appendChild(chip);
+
+        if(state.order.length === task.target.length){
+          state.attempts++;
+
+          if(state.order.join('|') === task.target.join('|')){
+            solve(task,state.attempts === 1 && !state.hintUsed ? 2 : 1);
+          }else{
+            sfx('error');
+            feedback('История получилась не по порядку. Давай ещё раз.',false);
+            state.order = [];
+            chosen.innerHTML = '';
+            [...els.options.children].forEach(el=>el.disabled=false);
+          }
+        }
+      });
+
+      els.options.appendChild(button);
+    });
+  }
+
+  function renderMemory(task){
+    const preview = document.createElement('div');
+    preview.className = 'tiles';
+
+    task.target.forEach(item=>{
+      const tile = document.createElement('div');
+      tile.className = 'hanging';
+      tile.textContent = item;
+      tile.style.cursor = 'default';
+      preview.appendChild(tile);
+    });
+
+    els.specialArea.appendChild(preview);
+    els.options.innerHTML = '<div class="tiny" style="text-align:center">Запоминай…</div>';
+
+    setTimeout(()=>{
+      if(!document.body.contains(preview) || state.solved) return;
+
+      preview.remove();
+      els.options.innerHTML = '';
+
+      const chosen = document.createElement('div');
+      chosen.className = 'selected-order';
+      els.specialArea.appendChild(chosen);
+
+      task.pool.forEach(item=>{
+        const button = makeButton(item,'hanging');
+
+        button.addEventListener('click',()=>{
+          if(state.solved) return;
+
+          state.order.push(item);
+
+          const chip = document.createElement('span');
+          chip.className = 'order-chip';
+          chip.textContent = item;
+          chosen.appendChild(chip);
+
+          if(state.order.length === task.target.length){
+            state.attempts++;
+
+            if(state.order.join('|') === task.target.join('|')){
+              solve(task,state.attempts === 1 && !state.hintUsed ? 2 : 1);
+            }else{
+              sfx('error');
+              feedback('Почти! Можно попробовать вспомнить ещё раз.',false);
+              state.order = [];
+              chosen.innerHTML = '';
+            }
+          }
+        });
+
+        els.options.appendChild(button);
+      });
+    },3000);
+  }
+
+  function solve(task,points){
+    state.solved = true;
+    state.scores[task.sphere] += points;
+
+    [...els.options.children].forEach(el=>el.disabled=true);
+    els.nextBtn.disabled = false;
+
+    sfx('success');
+    feedback(
+      points === 2
+        ? 'Отлично! Получилось самостоятельно.'
+        : 'Получилось! Навык развивается — хорошая работа.',
+      true
+    );
+    burst(18);
+  }
+
+  function feedback(text,good){
+    els.feedback.textContent = text;
+    els.feedback.className = 'feedback ' + (good ? 'good' : 'bad');
+  }
+
+  function next(){
+    const level = levels[state.levelIndex];
+
+    if(state.taskIndex < level.tasks.length - 1){
+      state.taskIndex++;
+      renderTask();
+      return;
+    }
+
+    if(state.allMode && state.levelIndex < levels.length - 1){
+      state.levelIndex++;
+      state.taskIndex = 0;
+      renderTask();
+      return;
+    }
+
+    finish();
+  }
+
+  function finish(){
+    sfx('win');
+    show(els.results);
+
+    const total = Object.values(state.scores).reduce((sum,value)=>sum+value,0);
+    const max = Object.values(state.maxScores).reduce((sum,value)=>sum+value,0);
+    const ratio = max ? total/max : 0;
+
+    const starCount = ratio >= .82 ? 3 : ratio >= .55 ? 2 : 1;
+    els.stars.textContent = '⭐'.repeat(starCount) + '☆'.repeat(3-starCount);
+
+    els.resultTitle.textContent =
+      ratio >= .82
+        ? `СУПЕР, ${state.name.toUpperCase()}!`
+        : `ХОРОШАЯ РАБОТА, ${state.name.toUpperCase()}!`;
+
+    els.resultLead.textContent =
+      'Это не оценка «готов / не готов». Карта показывает, какие навыки уже проявляются уверенно и где ребёнку сейчас особенно полезны игра, практика и поддержка взрослого.';
+
+    els.resultGrid.innerHTML = '';
+
+    Object.entries(spheres).forEach(([key,label])=>{
+      const score = state.scores[key];
+      const maxScore = state.maxScores[key];
+      if(maxScore === 0) return;
+
+      const r = score/maxScore;
+      const status = r >= .8 ? '🟢 Уверенно' : r >= .5 ? '🟡 Развивается' : '🔵 Пока учимся';
+
+      const row = document.createElement('div');
+      row.className = 'result-row';
+      row.innerHTML = `
+        <div class="result-row-top">
+          <strong>${label}</strong>
+          <span class="status">${status}</span>
+        </div>
+        <div class="bar"><i style="width:${Math.round(r*100)}%"></i></div>
+      `;
+      els.resultGrid.appendChild(row);
+    });
+
+    burst(50);
+  }
+
+  function speakTask(){
+    const task = levels[state.levelIndex].tasks[state.taskIndex];
+
+    if(!('speechSynthesis' in window)){
+      feedback('Озвучивание не поддерживается этим браузером.',false);
+      return;
+    }
+
+    window.speechSynthesis.cancel();
+
+    const utterance = new SpeechSynthesisUtterance(`${task.title}. ${task.text}`);
+    utterance.lang = 'ru-RU';
+    utterance.rate = .88;
+    utterance.pitch = 1.02;
+
+    window.speechSynthesis.speak(utterance);
+  }
+
+  function hint(){
+    const task = levels[state.levelIndex].tasks[state.taskIndex];
+    state.hintUsed = true;
+    feedback(`Подсказка: ${task.hint}`,true);
+    sfx('hint');
+  }
+
+  function unlockAudio(){
+    try{
+      audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)();
+      if(audioCtx.state === 'suspended') audioCtx.resume();
+    }catch(e){}
+  }
+
+  function tone(freq,duration,type='sine',gain=.05,delay=0){
+    if(!audioCtx) return;
+
+    const oscillator = audioCtx.createOscillator();
+    const volume = audioCtx.createGain();
+
+    oscillator.type = type;
+    oscillator.frequency.value = freq;
+    volume.gain.value = 0;
+
+    oscillator.connect(volume);
+    volume.connect(audioCtx.destination);
+
+    const t = audioCtx.currentTime + delay;
+
+    volume.gain.setValueAtTime(0,t);
+    volume.gain.linearRampToValueAtTime(gain,t+.01);
+    volume.gain.exponentialRampToValueAtTime(.001,t+duration);
+
+    oscillator.start(t);
+    oscillator.stop(t+duration+.03);
+  }
+
+  function sfx(kind){
+    unlockAudio();
+
+    if(kind === 'success'){
+      tone(523,.18,'triangle',.05);
+      tone(659,.2,'triangle',.05,.11);
+      tone(784,.28,'triangle',.06,.22);
+    }
+
+    if(kind === 'error'){
+      tone(180,.2,'sine',.035);
+      tone(145,.24,'sine',.03,.11);
+    }
+
+    if(kind === 'hint'){
+      tone(392,.12,'sine',.03);
+      tone(523,.18,'sine',.03,.1);
+    }
+
+    if(kind === 'win'){
+      [523,659,784,1046].forEach((freq,index)=>{
+        tone(freq,.36,'triangle',.05,index*.12);
+      });
+    }
+  }
+
+  function burst(count){
+    els.confetti.innerHTML = '';
+
+    const colors = ['#E4C46D','#C9685F','#246B45','#789A77'];
+
+    for(let i=0;i<count;i++){
+      const piece = document.createElement('i');
+      piece.style.left = Math.random()*100 + 'vw';
+      piece.style.animationDelay = Math.random()*.35 + 's';
+      piece.style.background = colors[i % colors.length];
+      piece.style.transform = `rotate(${Math.random()*180}deg)`;
+      els.confetti.appendChild(piece);
+    }
+
+    setTimeout(()=>els.confetti.innerHTML='',2200);
+  }
+
+  document.querySelectorAll('[data-start-level]').forEach(button=>{
+    button.addEventListener('click',()=>{
+      start(Number(button.dataset.startLevel),false);
+    });
+  });
+
+  els.startAll.addEventListener('click',()=>start(0,true));
+  els.nextBtn.addEventListener('click',next);
+  els.speakBtn.addEventListener('click',speakTask);
+  els.hintBtn.addEventListener('click',hint);
+
+  els.homeBtn.addEventListener('click',()=>{
+    if(window.speechSynthesis) window.speechSynthesis.cancel();
+    show(els.welcome);
+  });
+
+  els.againBtn.addEventListener('click',()=>show(els.welcome));
+
+  const savedName = localStorage.getItem('schoolQuestName');
+  if(savedName) els.nameInput.value = savedName;
+})();
+</script>
+</body>
+</html>
